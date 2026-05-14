@@ -1,0 +1,79 @@
+Metadata-Version: 2.4
+Name: hse-case-ai
+Version: 0.1.0
+Summary: CASE-платформа для автоматизации разработки с применением генеративного ИИ
+Requires-Python: >=3.12
+Description-Content-Type: text/markdown
+Requires-Dist: alembic>=1.14.0
+Requires-Dist: celery[redis]>=5.4.0
+Requires-Dist: fastapi>=0.115.0
+Requires-Dist: httpx>=0.28.0
+Requires-Dist: loguru>=0.7.2
+Requires-Dist: pydantic>=2.9.0
+Requires-Dist: pydantic-settings>=2.5.0
+Requires-Dist: python-multipart>=0.0.9
+Requires-Dist: redis>=5.1.0
+Requires-Dist: sqlalchemy>=2.0.35
+Requires-Dist: uvicorn[standard]>=0.31.0
+Requires-Dist: psycopg[binary]>=3.2.3
+Provides-Extra: dev
+Requires-Dist: mypy>=1.12.0; extra == "dev"
+Requires-Dist: pre-commit>=4.0.1; extra == "dev"
+Requires-Dist: pytest>=8.3.3; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.24.0; extra == "dev"
+Requires-Dist: ruff>=0.6.9; extra == "dev"
+Provides-Extra: mcp
+Requires-Dist: mcp>=1.6.0; extra == "mcp"
+
+# HSE-CASE-AI
+
+Рабочий MVP дипломного проекта: прототип CASE-системы для автоматизации разработки ПО с применением генеративного ИИ, MCP и агентной оркестрации.
+
+## Что входит в MVP
+- backend на FastAPI + SQLAlchemy + Celery;
+- frontend на React + TypeScript + Vite + Tailwind;
+- PostgreSQL, Redis, Nginx, Docker Compose;
+- demo mode без реальных API-ключей;
+- единый слой LLM adapters;
+- CASE workflow: requirements -> structure -> confirm -> code -> tests -> deploy;
+- MCP client/server layer;
+- агентный слой с журналированием выполнения;
+- документация для запуска и защиты.
+
+## Структура
+- `apps/backend` — backend API, storage, workflow, MCP, agents.
+- `apps/frontend` — веб-интерфейс.
+- `packages/shared-schemas` — общие схемы и статусы.
+- `docs` — архитектура, запуск, MCP, demo-script.
+- `examples` — пример требований.
+- `infra` — nginx и postgres init.
+- `storage` — файловое хранилище проектов и артефактов.
+
+## Быстрый запуск
+```bash
+cp .env.example .env
+docker compose up --build
+```
+
+UI будет доступен на `http://localhost:8080`, backend API — на `http://localhost:8000`.
+
+## Demo mode
+- По умолчанию активен `FakeLLMAdapter`.
+- Система не падает без API-ключей.
+- Dry-run deployment подходит для показа на защите.
+- Python MCP SDK подключается опционально; без него HTTP MCP bridge продолжает работать.
+
+## Локальная разработка
+```bash
+python3 -m pip install -e ".[dev]"
+cd apps/frontend && npm install
+docker compose -f docker-compose.dev.yml up --build
+```
+
+## Документация
+- [Архитектура](docs/architecture.md)
+- [План реализации](docs/implementation-plan.md)
+- [Развёртывание](docs/deployment.md)
+- [Провайдеры](docs/provider-integration.md)
+- [MCP-архитектура](docs/mcp-architecture.md)
+- [Сценарий защиты](docs/thesis-demo-script.md)
