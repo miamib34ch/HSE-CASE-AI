@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hse-case-ai"
+version = "0.1.0"
+description = "CASE-платформа для автоматизации разработки с применением генеративного ИИ"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "alembic>=1.14.0",
+  "celery[redis]>=5.4.0",
+  "fastapi>=0.115.0",
+  "httpx>=0.28.0",
+  "loguru>=0.7.2",
+  "pydantic>=2.9.0",
+  "pydantic-settings>=2.5.0",
+  "python-multipart>=0.0.9",
+  "redis>=5.1.0",
+  "sqlalchemy>=2.0.35",
+  "uvicorn[standard]>=0.31.0",
+  "psycopg[binary]>=3.2.3",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.12.0",
+  "pre-commit>=4.0.1",
+  "pytest>=8.3.3",
+  "pytest-asyncio>=0.24.0",
+  "ruff>=0.6.9",
+]
+mcp = [
+  "mcp>=1.6.0",
+]
+
+[tool.setuptools]
+package-dir = {"" = "apps/backend"}
+
+[tool.setuptools.packages.find]
+where = ["apps/backend"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N", "ASYNC"]
+ignore = ["B008", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"apps/backend/tests/*" = ["N802", "N803", "N806"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = []
+strict = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+disallow_any_generics = true
+disallow_subclassing_any = true
+no_implicit_optional = true
+namespace_packages = true
+explicit_package_bases = true
+mypy_path = ["apps/backend"]
+
+[[tool.mypy.overrides]]
+module = ["celery", "mcp.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["app.mcp.server_sdk"]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["app.workers.celery_app"]
+disable_error_code = ["import-untyped"]
+
+[tool.pytest.ini_options]
+pythonpath = ["apps/backend"]
+testpaths = ["apps/backend/tests"]
+asyncio_mode = "auto"

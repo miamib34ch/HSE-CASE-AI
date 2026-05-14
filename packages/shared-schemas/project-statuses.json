@@ -1,0 +1,13 @@
+{
+  "project_statuses": [
+    "draft",
+    "requirements_uploaded",
+    "requirements_structured",
+    "requirements_confirmed",
+    "code_generated",
+    "tests_generated",
+    "deployed",
+    "failed"
+  ]
+}
+

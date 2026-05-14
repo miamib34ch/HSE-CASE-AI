@@ -1,0 +1,67 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: case_ai
+      POSTGRES_USER: case_user
+      POSTGRES_PASSWORD: case_password
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://case_user:case_password@postgres:5432/case_ai
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_ROOT: /app/storage
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./storage:/app/storage
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    command: celery -A app.workers.celery_app.celery_app worker --loglevel=INFO
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://case_user:case_password@postgres:5432/case_ai
+      REDIS_URL: redis://redis:6379/0
+      STORAGE_ROOT: /app/storage
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./storage:/app/storage
+    depends_on:
+      - backend
+      - postgres
+      - redis
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+
